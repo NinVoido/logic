@@ -7,7 +7,7 @@ pub type StateToIterFn = Arc<dyn Fn(State) -> Box<dyn Iterator<Item = State>>>;
 #[derive(Eq, Hash, PartialEq, Clone, Debug)]
 pub enum Variable {
     Literal(Data),
-    Variable(Arc<str>),
+    VarName(Arc<str>),
 }
 
 #[derive(Eq, Hash, PartialEq, Clone, Debug)]

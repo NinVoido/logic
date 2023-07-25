@@ -1,6 +1,7 @@
 use crate::conjunction::Conjunction;
 use crate::disjunction::Disjunction;
 use crate::types::{State, StateIter, StateToIterFn, Variable};
+
 use std::collections::VecDeque;
 use std::sync::Arc;
 
@@ -8,7 +9,7 @@ pub fn walk(state: &State, x: &Variable) -> Variable {
     let mut last = x;
     loop {
         match last {
-            Variable::Variable(s) => {
+            Variable::VarName(s) => {
                 if state.map.contains_key(s.as_ref()) {
                     last = &state.map[s.as_ref()];
                 } else {
@@ -29,13 +30,13 @@ pub fn unify(state: &State, l: &Variable, r: &Variable) -> StateIter {
     let walked_r = walk(&state, &r);
 
     match (walked_l, walked_r) {
-        (Variable::Variable(name), Variable::Variable(_)) => {
+        (Variable::VarName(name), Variable::VarName(_)) => {
             Box::new(std::iter::once(state.update(name, r.clone())))
         }
-        (Variable::Variable(name), Variable::Literal(_)) => {
+        (Variable::VarName(name), Variable::Literal(_)) => {
             Box::new(std::iter::once(state.update(name, r.clone())))
         }
-        (Variable::Literal(_), Variable::Variable(name)) => {
+        (Variable::Literal(_), Variable::VarName(name)) => {
             Box::new(std::iter::once(state.update(name, l.clone())))
         }
         (Variable::Literal(l_val), Variable::Literal(r_val)) => {
