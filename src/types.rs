@@ -1,6 +1,9 @@
 use im::HashMap;
 use std::sync::Arc;
 
+pub type StateIter = Box<dyn Iterator<Item = State>>;
+pub type StateToIterFn = Arc<dyn Fn(State) -> Box<dyn Iterator<Item = State>>>;
+
 #[derive(Eq, Hash, PartialEq, Clone, Debug)]
 pub enum Variable {
     Literal(Data),

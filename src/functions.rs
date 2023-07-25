@@ -1,5 +1,6 @@
-use crate::types::{State, Variable};
-
+use crate::disjunction::Disjunction;
+use crate::types::{State, StateToIterFn, Variable};
+use std::collections::VecDeque;
 use std::sync::Arc;
 
 pub fn walk(state: &State, x: &Variable) -> Variable {
@@ -12,10 +13,10 @@ pub fn walk(state: &State, x: &Variable) -> Variable {
                 } else {
                     break;
                 }
-            },
+            }
             Variable::Literal(_) => {
                 break;
-            },
+            }
         }
     }
 
@@ -38,4 +39,15 @@ pub fn unify(state: &State, l: &Variable, r: &Variable) -> Option<State> {
             }
         }
     }
+}
+
+pub fn or(f: StateToIterFn, g: StateToIterFn) -> StateToIterFn {
+    let _or = move |state: State| -> Box<dyn Iterator<Item = State>> {
+        Box::new(Disjunction::new(VecDeque::from([
+            f(state.clone()),
+            g(state),
+        ])))
+    };
+
+    return Arc::new(_or);
 }
