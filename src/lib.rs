@@ -1,3 +1,6 @@
+#![allow(dead_code)]
+
+mod conjunction;
 mod disjunction;
 mod functions;
 mod parser;
@@ -5,12 +8,15 @@ mod types;
 
 #[cfg(test)]
 mod tests {
+    use crate::conjunction::Conjunction;
     use crate::disjunction::Disjunction;
-    use crate::functions::{or, unify};
+    use crate::functions::{eq, or, unify};
     use crate::types::{Data, State, StateIter, Variable};
-    use im::hashmap;
+
     use std::collections::VecDeque;
     use std::sync::Arc;
+
+    use im::hashmap;
 
     #[test]
     fn unify_test() {
@@ -21,12 +27,15 @@ mod tests {
             &Variable::Variable("x".into()),
             &Variable::Variable("y".into()),
         )
+        .next()
         .unwrap();
+
         let unif = unify(
             &unif,
             &Variable::Variable("y".into()),
             &Variable::Literal(Data::Int(5)),
         )
+        .next()
         .unwrap();
 
         assert_eq!(
@@ -41,13 +50,13 @@ mod tests {
     fn literal_test() {
         let st = State::new();
 
-        let unif = unify(
+        let mut unif = unify(
             &st,
             &Variable::Literal(Data::Int(5)),
             &Variable::Literal(Data::Int(6)),
         );
 
-        assert_eq!(unif, None);
+        assert_eq!(unif.next(), None);
     }
 
     #[test]
@@ -97,4 +106,31 @@ mod tests {
 
         assert_eq!(iter_3.next(), None);
     }
+
+    #[test]
+    fn conjunction_test() {
+        let mut iter_fn = Conjunction::new(
+            Box::new(unify(
+                &State::new(),
+                &Variable::Variable("x".into()),
+                &Variable::Literal(Data::Int(1)),
+            )),
+            eq(
+                Variable::Variable("y".into()),
+                Variable::Literal(Data::Int(1)),
+            ),
+        );
+
+        assert_eq!(
+            iter_fn.next(),
+            Some(State::from_map(
+                hashmap! { "x".into() => Variable::Literal(Data::Int(1)), "y".into() => Variable::Literal(Data::Int(1))}
+            ))
+        );
+
+        assert_eq!(iter_fn.next(), None);
+    }
+
+    #[test]
+    fn and_test() {}
 }

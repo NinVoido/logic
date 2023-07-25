@@ -10,7 +10,7 @@ impl Iterator for Disjunction {
     type Item = State;
 
     fn next(&mut self) -> Option<Self::Item> {
-        let mut iter = self.items.pop_front();
+        let iter = self.items.pop_front();
 
         let mut result = None;
 
